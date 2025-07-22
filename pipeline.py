@@ -18,7 +18,6 @@ def run_pipeline():
 
     # Step 2: Combine all documents
     all_docs = message_docs + connection_docs
-    print('****all docs: ', all_docs)
 
     # Step 3: Split documents into chunks
     split_docs = split_documents(all_docs, chunk_size=500, chunk_overlap=50)
