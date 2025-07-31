@@ -30,22 +30,24 @@ def get_memory(memory_type: str = "combined", k: int = 5):
         return ConversationBufferWindowMemory(
             
             k=k,
-            return_messages=True
+            return_messages=True,
+            memory_key="buffer_history"
         )
 
     elif memory_type == "summary":
         llm = get_groq_llm()
         return ConversationSummaryMemory(
             llm=llm,
-            return_messages=True
+            return_messages=True,
+            memory_key="summary_history"
         )
 
     elif memory_type == "combined":
         llm = get_groq_llm()
         return CombinedMemory(
             memories=[
-                ConversationBufferWindowMemory(k=k, return_messages=True),
-                ConversationSummaryMemory(llm=llm, return_messages=True)
+                ConversationBufferWindowMemory(k=k, return_messages=True, memory_key="buffer_history"),
+                ConversationSummaryMemory(llm=llm, return_messages=True, memory_key="chat_history")
             ]
         )
 

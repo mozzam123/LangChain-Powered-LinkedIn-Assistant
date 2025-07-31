@@ -26,7 +26,7 @@ def run_pipeline():
     embedder = get_embedder()
 
     # Step 5: Build or load FAISS vector index
-    vectorstore = build_or_load_faiss_index(split_docs, embedder)
+    build_or_load_faiss_index(split_docs, embedder)
 
     print(f"Pipeline completed successfully. Indexed {len(split_docs)} chunks.")
 

@@ -5,8 +5,9 @@ import sys
 from dotenv import load_dotenv
 from embedding.embedder import get_embedder
 from vectorstore.faiss_store import build_or_load_faiss_index
+from memory.memory_manager import get_memory
 
-from langchain.chains.retrieval_qa.base import RetrievalQA
+from langchain.chains.conversational_retrieval.base import ConversationalRetrievalChain
 from langchain_groq import ChatGroq
 
 def run_cli():
@@ -34,15 +35,24 @@ def run_cli():
         temperature=0
     )
 
-    # Step 4: Build Retrieval-QA chain
-    retriever = vectorstore.as_retriever()
-    qa_chain = RetrievalQA.from_chain_type(
+    # Step 4: Load Memory (use "combined" for buffer + summary)
+    memory = get_memory(memory_type="combined", k=5)
+
+    
+    # Step 5: Create retriever from FAISS
+    retriever = vectorstore.as_retriever(search_kwargs={"k": 5})
+
+
+    # Step 6: Create Conversational Retrieval Chain
+    qa_chain = ConversationalRetrievalChain.from_llm(
         llm=llm,
         retriever=retriever,
-        return_source_documents=False
+        memory=memory,
+        return_source_documents=False,
+        verbose=True  # for debug/tracing
     )
 
-    # Step 5: CLI Loop
+    # Step 7: Start CLI interaction loop
     while True:
         query = input("\n🧠 Ask: ").strip()
 
@@ -51,7 +61,7 @@ def run_cli():
             break
 
         try:
-            answer = qa_chain.run(query)
+            answer = qa_chain.invoke(query)
             print(f"\n💬 Answer:\n{answer}")
         except Exception as e:
             print(f"❌ Error: {e}")
